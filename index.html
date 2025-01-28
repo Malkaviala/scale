@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi Truck Axle Weight Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 p-4 md:p-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Semi Truck Axle Weight Calculator</h1>
+                <button onclick="clearAll()" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">
+                    Clear All
+                </button>
+            </div>
+        </div>
+        
+        <!-- Input Section -->
+        <div class="space-y-6 mb-8">
+            <div class="relative">
+                <label class="block text-gray-700 text-sm font-bold mb-2">
+                    Steer Axle Weight (lbs)
+                </label>
+                <input type="number" id="steer" 
+                    class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    placeholder="Enter steer axle weight"
+                    min="0"
+                    max="50000"
+                    oninput="handleInput(this)">
+                <div class="text-sm text-red-500 mt-1 hidden" id="steerError"></div>
+            </div>
+            
+            <div class="relative">
+                <label class="block text-gray-700 text-sm font-bold mb-2">
+                    Tractor Weight (Steer + Drive) (lbs)
+                </label>
+                <input type="number" id="tractor" 
+                    class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    placeholder="Enter total tractor weight"
+                    min="0"
+                    max="100000"
+                    oninput="handleInput(this)">
+                <div class="text-sm text-red-500 mt-1 hidden" id="tractorError"></div>
+            </div>
+            
+            <div class="relative">
+                <label class="block text-gray-700 text-sm font-bold mb-2">
+                    Total Weight (lbs)
+                </label>
+                <input type="number" id="total" 
+                    class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    placeholder="Enter total weight"
+                    min="0"
+                    max="150000"
+                    oninput="handleInput(this)">
+                <div class="text-sm text-red-500 mt-1 hidden" id="totalError"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="bg-gray-50 rounded-xl p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Results</h2>
+            <div class="grid gap-6">
+                <!-- Steer Axle Result -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-bold">Steer Axle Weight:</span>
+                        <span id="steerResult" class="font-extrabold text-blue-600 text-lg">0 lbs</span>
+                    </div>
+                    <div class="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="steerProgress" class="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500 font-bold">
+                        <span>0 lbs</span>
+                        <span>12,000 lbs</span>
+                    </div>
+                </div>
+                
+                <!-- Drive Axle Result -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-bold">Drive Axle(s) Weight:</span>
+                        <span id="driveResult" class="font-extrabold text-blue-600 text-lg">0 lbs</span>
+                    </div>
+                    <div class="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="driveProgress" class="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500 font-bold">
+                        <span>0 lbs</span>
+                        <span>34,000 lbs</span>
+                    </div>
+                </div>
+                
+                <!-- Trailer Axle Result -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 font-bold">Trailer Axle(s) Weight:</span>
+                        <span id="trailerResult" class="font-extrabold text-blue-600 text-lg">0 lbs</span>
+                    </div>
+                    <div class="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="trailerProgress" class="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500 font-bold">
+                        <span>0 lbs</span>
+                        <span>34,000 lbs</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border-2 border-green-100">
+                    <span class="text-gray-600 font-bold">Total Calculated Weight:</span>
+                    <span id="totalResult" class="font-extrabold text-green-600 text-lg">0 lbs</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Limits Section -->
+        <div class="bg-blue-50 rounded-xl p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3">Weight Limits</h2>
+            <ul class="space-y-2 text-gray-600">
+                <li class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    Steer Axle: ≤ 12,000 lbs
+                </li>
+                <li class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    Drive Axle(s): ≤ 34,000 lbs
+                </li>
+                <li class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    Trailer Axle(s): ≤ 34,000 lbs
+                </li>
+            </ul>
+        </div>
+
+        <!-- Warnings Section -->
+        <div id="warnings" class="space-y-3"></div>
+    </div>
+
+    <script>
+        // Weight limits
+        const STEER_LIMIT = 12000;
+        const DRIVE_LIMIT = 34000;
+        const TRAILER_LIMIT = 34000;
+
+        // Warning thresholds (percentage of limit)
+        const WARNING_THRESHOLD = 0.85; // 85% of limit
+
+        function clearAll() {
+            // Clear all input fields
+            document.getElementById('steer').value = '';
+            document.getElementById('tractor').value = '';
+            document.getElementById('total').value = '';
+            
+            // Reset progress bars
+            document.getElementById('steerProgress').style.width = '0%';
+            document.getElementById('driveProgress').style.width = '0%';
+            document.getElementById('trailerProgress').style.width = '0%';
+            
+            // Reset results
+            document.getElementById('steerResult').textContent = '0 lbs';
+            document.getElementById('driveResult').textContent = '0 lbs';
+            document.getElementById('trailerResult').textContent = '0 lbs';
+            document.getElementById('totalResult').textContent = '0 lbs';
+            
+            // Clear warnings
+            document.getElementById('warnings').innerHTML = '';
+            
+            // Reset input styles
+            ['steer', 'tractor', 'total'].forEach(id => {
+                const input = document.getElementById(id);
+                input.classList.remove('border-red-500', 'border-yellow-500');
+                document.getElementById(id + 'Error').classList.add('hidden');
+            });
+            
+            // Reset progress bar colors
+            ['steer', 'drive', 'trailer'].forEach(id => {
+                const progress = document.getElementById(id + 'Progress');
+                progress.classList.remove('bg-red-500', 'bg-yellow-500');
+                progress.classList.add('bg-blue-500');
+            });
+        }
+
+        // Debounce function to limit calculation frequency
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function handleInput(input) {
+            validateInput(input);
+            debouncedCalculate();
+        }
+
+        function validateInput(input) {
+            const errorDiv = document.getElementById(input.id + 'Error');
+            const value = parseFloat(input.value);
+            
+            // Clear previous error
+            errorDiv.classList.add('hidden');
+            input.classList.remove('border-red-500', 'border-yellow-500');
+            
+            // Validate input
+            if (value < 0) {
+                errorDiv.textContent = 'Weight cannot be negative';
+                errorDiv.classList.remove('hidden');
+                input.classList.add('border-red-500');
+                return false;
+            }
+            
+            // Validate max values
+            const maxValues = {
+                steer: 12000,
+                tractor: 46000,
+                total: 80000
+            };
+            
+            if (value > maxValues[input.id]) {
+                errorDiv.textContent = `Weight cannot exceed ${maxValues[input.id].toLocaleString()} lbs`;
+                errorDiv.classList.remove('hidden');
+                input.classList.add('border-red-500');
+                return false;
+            }
+            
+            // Additional validation for tractor weight
+            if (input.id === 'tractor') {
+                const steerWeight = parseFloat(document.getElementById('steer').value) || 0;
+                if (value < steerWeight) {
+                    errorDiv.textContent = 'Tractor weight must be greater than steer weight';
+                    errorDiv.classList.remove('hidden');
+                    input.classList.add('border-red-500');
+                    return false;
+                }
+            }
+            
+            // Additional validation for total weight
+            if (input.id === 'total') {
+                const tractorWeight = parseFloat(document.getElementById('tractor').value) || 0;
+                if (value < tractorWeight) {
+                    errorDiv.textContent = 'Total weight must be greater than tractor weight';
+                    errorDiv.classList.remove('hidden');
+                    input.classList.add('border-red-500');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function updateProgressBar(id, value, limit) {
+            const progressBar = document.getElementById(id + 'Progress');
+            const percentage = Math.min((value / limit) * 100, 100);
+            
+            // Update width
+            progressBar.style.width = `${percentage}%`;
+            
+            // Update color based on percentage
+            progressBar.classList.remove('bg-blue-500', 'bg-yellow-500', 'bg-red-500');
+            if (percentage >= 100) {
+                progressBar.classList.add('bg-red-500');
+            } else if (percentage >= WARNING_THRESHOLD * 100) {
+                progressBar.classList.add('bg-yellow-500');
+            } else {
+                progressBar.classList.add('bg-blue-500');
+            }
+        }
+
+        const calculateWeights = () => {
+            // Clear previous warnings
+            document.getElementById('warnings').innerHTML = '';
+
+            // Get input values
+            const steer = parseFloat(document.getElementById('steer').value) || 0;
+            const tractor = parseFloat(document.getElementById('tractor').value) || 0;
+            const total = parseFloat(document.getElementById('total').value) || 0;
+
+            // Calculate axle weights
+            const drive = tractor - steer;
+            const trailer = total - tractor;
+            const calculatedTotal = steer + drive + trailer;
+
+            // Update progress bars
+            updateProgressBar('steer', steer, STEER_LIMIT);
+            updateProgressBar('drive', drive, DRIVE_LIMIT);
+            updateProgressBar('trailer', trailer, TRAILER_LIMIT);
+
+            // Update results
+            const steerResult = document.getElementById('steerResult');
+            const driveResult = document.getElementById('driveResult');
+            const trailerResult = document.getElementById('trailerResult');
+            const totalResult = document.getElementById('totalResult');
+
+            // Reset styles
+            steerResult.className = 'font-extrabold text-blue-600 text-lg';
+            driveResult.className = 'font-extrabold text-blue-600 text-lg';
+            trailerResult.className = 'font-extrabold text-blue-600 text-lg';
+
+            // Check steer axle
+            if (steer > 0) {
+                if (steer > STEER_LIMIT) {
+                    const exceed = steer - STEER_LIMIT;
+                    createWarning(`Steer axle exceeds limit by ${exceed.toLocaleString()} lbs (${steer.toLocaleString()} lbs > ${STEER_LIMIT.toLocaleString()} lbs)`);
+                    steerResult.className = 'font-extrabold text-red-600 text-lg';
+                    steerResult.textContent = `${steer.toLocaleString()} lbs (exceeds by ${exceed.toLocaleString()} lbs)`;
+                } else if (steer > STEER_LIMIT * WARNING_THRESHOLD) {
+                    steerResult.className = 'font-extrabold text-yellow-600 text-lg';
+                    steerResult.textContent = `${steer.toLocaleString()} lbs (approaching limit)`;
+                } else {
+                    steerResult.textContent = `${steer.toLocaleString()} lbs`;
+                }
+            } else {
+                steerResult.textContent = '0 lbs';
+            }
+
+            // Check drive axle
+            if (drive > 0) {
+                if (drive > DRIVE_LIMIT) {
+                    const exceed = drive - DRIVE_LIMIT;
+                    createWarning(`Drive axle(s) exceed limit by ${exceed.toLocaleString()} lbs (${drive.toLocaleString()} lbs > ${DRIVE_LIMIT.toLocaleString()} lbs)`);
+                    driveResult.className = 'font-extrabold text-red-600 text-lg';
+                    driveResult.textContent = `${drive.toLocaleString()} lbs (exceeds by ${exceed.toLocaleString()} lbs)`;
+                } else if (drive > DRIVE_LIMIT * WARNING_THRESHOLD) {
+                    driveResult.className = 'font-extrabold text-yellow-600 text-lg';
+                    driveResult.textContent = `${drive.toLocaleString()} lbs (approaching limit)`;
+                } else {
+                    driveResult.textContent = `${drive.toLocaleString()} lbs`;
+                }
+            } else {
+                driveResult.textContent = '0 lbs';
+            }
+
+            // Check trailer axle
+            if (trailer > 0) {
+                if (trailer > TRAILER_LIMIT) {
+                    const exceed = trailer - TRAILER_LIMIT;
+                    createWarning(`Trailer axle(s) exceed limit by ${exceed.toLocaleString()} lbs (${trailer.toLocaleString()} lbs > ${TRAILER_LIMIT.toLocaleString()} lbs)`);
+                    trailerResult.className = 'font-extrabold text-red-600 text-lg';
+                    trailerResult.textContent = `${trailer.toLocaleString()} lbs (exceeds by ${exceed.toLocaleString()} lbs)`;
+                } else if (trailer > TRAILER_LIMIT * WARNING_THRESHOLD) {
+                    trailerResult.className = 'font-extrabold text-yellow-600 text-lg';
+                    trailerResult.textContent = `${trailer.toLocaleString()} lbs (approaching limit)`;
+                } else {
+                    trailerResult.textContent = `${trailer.toLocaleString()} lbs`;
+                }
+            } else {
+                trailerResult.textContent = '0 lbs';
+            }
+
+            // Update total
+            totalResult.textContent = calculatedTotal > 0 ? `${calculatedTotal.toLocaleString()} lbs` : '0 lbs';
+        };
+
+        function createWarning(message) {
+            const warningsDiv = document.getElementById('warnings');
+            const warning = document.createElement('div');
+            warning.className = 'flex items-start gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600';
+            
+            const text = document.createElement('p');
+            text.textContent = message;
+            
+            warning.appendChild(text);
+            warningsDiv.appendChild(warning);
+        }
+
+        // Create debounced version of calculate function
+        const debouncedCalculate = debounce(calculateWeights, 300);
+
+        // Initial calculation
+        calculateWeights();
+    </script>
+</body>
+</html>
